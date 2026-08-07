@@ -14,7 +14,7 @@ class StreamingTranscriber:
         self._vad = vad
         self._cfg = config
 
-    def run(self, source: FrameSource) -> Iterator:
+    def run(self, source: FrameSource) -> Iterator[PartialResult | FinalResult]:
         cfg = self._cfg
         agree = LocalAgreement()
         buffer: list[np.ndarray] = []
@@ -45,9 +45,14 @@ class StreamingTranscriber:
             else:
                 if had_speech:
                     silence_ms += frame_ms
-                    if (silence_ms >= cfg.min_silence_ms
-                            and speech_ms >= cfg.min_speech_ms):
-                        yield self._finalize(buffer, agree)
+                    if silence_ms >= cfg.min_silence_ms:
+                        if speech_ms >= cfg.min_speech_ms:
+                            yield self._finalize(buffer, agree)
+                        else:
+                            # Sub-threshold speech blip: discard silently so a
+                            # later real utterance doesn't get concatenated
+                            # onto this stale buffer.
+                            self._discard(agree)
                         buffer, speech_ms, silence_ms = [], 0.0, 0.0
                         ms_since_window, had_speech = 0.0, False
 
@@ -64,3 +69,8 @@ class StreamingTranscriber:
         start = res.words[0].start if res.words else 0.0
         end = res.words[-1].end if res.words else 0.0
         return FinalResult(text=res.text, words=res.words, start=start, end=end)
+
+    def _discard(self, agree: LocalAgreement) -> None:
+        """Drop a sub-threshold speech blip without emitting any result."""
+        agree.finalize()
+        self._vad.reset()
