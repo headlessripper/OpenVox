@@ -3,8 +3,8 @@ import wave
 import numpy as np
 import pytest
 
-from nectarstt import demo
-from nectarstt.events import PartialResult, FinalResult
+from openvox.stt import demo
+from openvox.stt.events import PartialResult, FinalResult
 
 def test_build_parser_defaults():
     args = demo.build_parser().parse_args([])

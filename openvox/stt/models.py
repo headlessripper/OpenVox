@@ -1,5 +1,4 @@
-import os
-from platformdirs import user_cache_dir
+from openvox._paths import cache_dir
 
 # faster-whisper resolves these ids directly against the HF hub.
 MODEL_ALIASES: dict[str, str] = {
@@ -18,6 +17,4 @@ def resolve_model(name: str) -> str:
     return MODEL_ALIASES[name]
 
 def download_root() -> str:
-    root = os.path.join(user_cache_dir("nectarstt"), "models")
-    os.makedirs(root, exist_ok=True)
-    return root
+    return cache_dir("stt/models")

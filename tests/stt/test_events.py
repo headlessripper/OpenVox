@@ -1,4 +1,4 @@
-from nectarstt.events import WordTiming, PartialResult, FinalResult
+from openvox.stt.events import WordTiming, PartialResult, FinalResult
 
 def test_partial_is_partial():
     p = PartialResult(text="hello wor", committed_prefix="hello", volatile_tail="wor")

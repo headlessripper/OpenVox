@@ -2,11 +2,11 @@ from collections.abc import Iterator
 
 import numpy as np
 
-from nectarstt.audio.sources import FrameSource
-from nectarstt.config import Config
-from nectarstt.engine.backend import StreamingBackend
-from nectarstt.engine.local_agreement import LocalAgreement
-from nectarstt.events import PartialResult, FinalResult
+from openvox.stt.audio.sources import FrameSource
+from openvox.stt.config import Config
+from openvox.stt.engine.backend import StreamingBackend
+from openvox.stt.engine.local_agreement import LocalAgreement
+from openvox.stt.events import PartialResult, FinalResult
 
 class StreamingTranscriber:
     def __init__(self, backend: StreamingBackend, vad, config: Config) -> None:

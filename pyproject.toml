@@ -3,30 +3,23 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nectarstt"
+name = "openvox"
 version = "0.1.0"
-description = "ElevenLabs-grade, fully offline streaming speech-to-text."
+description = "All-in-one, fully offline voice engine (speech-to-text; text-to-speech next)."
 requires-python = ">=3.11"
-dependencies = [
-    "faster-whisper>=1.0.0",
-    "pysilero-vad>=2.0.0",
-    "sounddevice>=0.4.6",
-    "numpy>=1.24",
-    "huggingface_hub>=0.23",
-    "platformdirs>=4.0",
-]
+dependencies = ["numpy>=1.24", "platformdirs>=4.0"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
-# Enables the demo CLI to load non-WAV / non-16kHz audio (decode + resample
-# on the fly). PyAV bundles ffmpeg in its wheels, so no separate install.
-demo = ["av>=11"]
+stt      = ["faster-whisper>=1.0.0", "pysilero-vad>=2.0.0", "sounddevice>=0.4.6", "huggingface_hub>=0.23"]
+stt-demo = ["av>=11"]
+dev      = ["pytest>=8.0"]
+all      = ["openvox[stt,stt-demo]"]
 
 [project.scripts]
-nectarstt-demo = "nectarstt.demo:main"
+openvox-stt-demo = "openvox.stt.demo:main"
 
 [tool.setuptools.packages.find]
-include = ["nectarstt*"]
+include = ["openvox*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,7 +1,7 @@
 import wave
 import numpy as np
 import pytest
-from nectarstt.audio.sources import FileSource, MicSource, ArraySource
+from openvox.stt.audio.sources import FileSource, MicSource, ArraySource
 
 def _write_wav(path, seconds, sr=16000):
     n = int(seconds * sr)

@@ -1,7 +1,7 @@
 import wave
 import numpy as np
 import pytest
-from nectarstt.engine.faster_whisper_backend import FasterWhisperBackend
+from openvox.stt.engine.faster_whisper_backend import FasterWhisperBackend
 
 pytestmark = pytest.mark.integration
 
@@ -13,7 +13,7 @@ def _load(path):
     return audio, sr
 
 def test_transcribes_hello_world():
-    audio, sr = _load("tests/fixtures/hello_world.wav")
+    audio, sr = _load("tests/stt/fixtures/hello_world.wav")
     backend = FasterWhisperBackend(model="tiny", device="cpu", compute_type="int8")
     result = backend.transcribe(audio, sr, language="en", word_timestamps=True)
     assert "hello" in result.text.lower()

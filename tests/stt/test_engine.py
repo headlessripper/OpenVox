@@ -3,15 +3,15 @@ import wave
 import numpy as np
 import pytest
 
-import nectarstt
-from nectarstt import STTEngine, FileSource, FinalResult, PartialResult
-from nectarstt.engine.backend import StreamingBackend, BackendResult
+import openvox.stt
+from openvox.stt import STTEngine, FileSource, FinalResult, PartialResult
+from openvox.stt.engine.backend import StreamingBackend, BackendResult
 
 
 @pytest.mark.integration  # uses the real tiny backend + VAD
 def test_stream_over_file_yields_final():
     engine = STTEngine(model="tiny", device="cpu", language="en")
-    events = list(engine.stream(source=FileSource("tests/fixtures/hello_world.wav")))
+    events = list(engine.stream(source=FileSource("tests/stt/fixtures/hello_world.wav")))
     finals = [e for e in events if isinstance(e, FinalResult)]
     assert len(finals) >= 1
     joined = " ".join(f.text.lower() for f in finals)
@@ -20,7 +20,7 @@ def test_stream_over_file_yields_final():
 @pytest.mark.integration  # uses the real tiny backend + VAD
 def test_transcribe_file_batch():
     engine = STTEngine(model="tiny", device="cpu", language="en")
-    result = engine.transcribe_file("tests/fixtures/hello_world.wav")
+    result = engine.transcribe_file("tests/stt/fixtures/hello_world.wav")
     assert isinstance(result, FinalResult)
     assert "hello" in result.text.lower()
 
@@ -44,7 +44,7 @@ def test_transcribe_file_rejects_malformed_wav(tmp_path, monkeypatch):
     normal, non-integration test.
     """
     monkeypatch.setattr(
-        nectarstt, "FasterWhisperBackend", lambda **kwargs: _UnreachableBackend())
+        openvox.stt, "FasterWhisperBackend", lambda **kwargs: _UnreachableBackend())
 
     p = tmp_path / "stereo.wav"
     n = int(0.1 * 16000)

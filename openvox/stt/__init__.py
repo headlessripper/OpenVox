@@ -1,15 +1,15 @@
-"""NectarSTT — offline streaming speech-to-text."""
+"""OpenVox STT — offline streaming speech-to-text."""
 import dataclasses
 from collections.abc import Iterator
 
 import numpy as np
 
-from nectarstt.config import Config
-from nectarstt.events import WordTiming, PartialResult, FinalResult
-from nectarstt.audio.sources import FrameSource, FileSource, MicSource, ArraySource
-from nectarstt.audio.vad import SileroVAD
-from nectarstt.engine.faster_whisper_backend import FasterWhisperBackend
-from nectarstt.engine.transcriber import StreamingTranscriber
+from openvox.stt.config import Config
+from openvox.stt.events import WordTiming, PartialResult, FinalResult
+from openvox.stt.audio.sources import FrameSource, FileSource, MicSource, ArraySource
+from openvox.stt.audio.vad import SileroVAD
+from openvox.stt.engine.faster_whisper_backend import FasterWhisperBackend
+from openvox.stt.engine.transcriber import StreamingTranscriber
 
 __version__ = "0.1.0"
 __all__ = ["STTEngine", "Config", "PartialResult", "FinalResult",
