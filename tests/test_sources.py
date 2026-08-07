@@ -1,7 +1,7 @@
 import wave
 import numpy as np
 import pytest
-from nectarstt.audio.sources import FileSource, MicSource
+from nectarstt.audio.sources import FileSource, MicSource, ArraySource
 
 def _write_wav(path, seconds, sr=16000):
     n = int(seconds * sr)
@@ -77,3 +77,26 @@ def test_microsource_close_sets_stop_flag():
     assert not src._stop.is_set()
     src.close()
     assert src._stop.is_set()
+
+def test_arraysource_frame_shape_and_count():
+    audio = np.zeros(16000, dtype=np.float32)          # 1.0s
+    src = ArraySource(audio, frame_ms=32, sample_rate=16000)
+    frames = list(src.frames())
+    assert all(f.dtype == np.float32 for f in frames)
+    assert all(f.shape[0] == 512 for f in frames)      # 32ms * 16000 = 512
+    assert len(frames) == 32                            # 16000/512 = 31.25 -> 32 (padded)
+
+def test_arraysource_pads_final_frame():
+    audio = np.ones(600, dtype=np.float32)             # 1 full frame + 88 samples
+    frames = list(ArraySource(audio).frames())
+    assert len(frames) == 2
+    assert frames[1].shape[0] == 512
+    assert np.count_nonzero(frames[1]) == 88           # remainder padded with zeros
+
+def test_arraysource_coerces_dtype():
+    audio = np.zeros(512, dtype=np.float64)            # not float32
+    f = next(ArraySource(audio).frames())
+    assert f.dtype == np.float32
+
+def test_arraysource_empty_yields_nothing():
+    assert list(ArraySource(np.zeros(0, dtype=np.float32)).frames()) == []

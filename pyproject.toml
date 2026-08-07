@@ -18,6 +18,9 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+# Enables the demo CLI to load non-WAV / non-16kHz audio (decode + resample
+# on the fly). PyAV bundles ffmpeg in its wheels, so no separate install.
+demo = ["av>=11"]
 
 [project.scripts]
 nectarstt-demo = "nectarstt.demo:main"

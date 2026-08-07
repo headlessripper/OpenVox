@@ -6,14 +6,14 @@ import numpy as np
 
 from nectarstt.config import Config
 from nectarstt.events import WordTiming, PartialResult, FinalResult
-from nectarstt.audio.sources import FrameSource, FileSource, MicSource
+from nectarstt.audio.sources import FrameSource, FileSource, MicSource, ArraySource
 from nectarstt.audio.vad import SileroVAD
 from nectarstt.engine.faster_whisper_backend import FasterWhisperBackend
 from nectarstt.engine.transcriber import StreamingTranscriber
 
 __version__ = "0.1.0"
 __all__ = ["STTEngine", "Config", "PartialResult", "FinalResult",
-           "WordTiming", "FileSource", "MicSource"]
+           "WordTiming", "FileSource", "MicSource", "ArraySource"]
 
 class STTEngine:
     def __init__(self, model: str | None = None, device: str | None = None,
