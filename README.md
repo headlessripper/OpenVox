@@ -40,7 +40,7 @@ python -m nectarstt.demo
 
 Available demo CLI flags:
 - `--model`: model size (default: `distil-large-v3`; options: `tiny`, `base`, `small`, `distil-large-v3`, `large-v3`)
-- `--device`: compute device (default: `cuda`; also: `cpu`, `mps`)
+- `--device`: compute device (default: `cuda`; also: `cpu`). Falls back to CPU automatically if CUDA is unavailable.
 - `--language`: ISO 639-1 language code (default: `en`)
 - `--file`: transcribe a WAV file instead of live mic input
 
