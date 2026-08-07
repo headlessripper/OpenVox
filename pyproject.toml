@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nectarstt"
+version = "0.1.0"
+description = "ElevenLabs-grade, fully offline streaming speech-to-text."
+requires-python = ">=3.11"
+dependencies = [
+    "faster-whisper>=1.0.0",
+    "pysilero-vad>=2.0.0",
+    "sounddevice>=0.4.6",
+    "numpy>=1.24",
+    "huggingface_hub>=0.23",
+    "platformdirs>=4.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+nectarstt-demo = "nectarstt.demo:main"
+
+[tool.setuptools.packages.find]
+include = ["nectarstt*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: needs model download / real audio backend"]
