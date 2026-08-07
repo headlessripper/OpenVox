@@ -1,4 +1,4 @@
-from nectarstt.engine.local_agreement import LocalAgreement
+from openvox.stt.engine.local_agreement import LocalAgreement
 
 def test_first_update_commits_nothing():
     la = LocalAgreement()

@@ -1,5 +1,5 @@
 import pytest
-from nectarstt import models
+from openvox.stt import models
 
 def test_resolve_known_alias():
     assert models.resolve_model("distil-large-v3") == "distil-large-v3"
@@ -12,5 +12,5 @@ def test_resolve_unknown_raises():
 def test_download_root_is_stable_and_contains_app():
     root = models.download_root()
     assert isinstance(root, str)
-    assert "nectarstt" in root.lower()
+    assert "openvox" in root.lower()
     assert models.download_root() == root  # deterministic

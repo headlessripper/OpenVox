@@ -11,9 +11,9 @@ import logging
 import numpy as np
 from faster_whisper import WhisperModel
 
-from nectarstt.engine.backend import StreamingBackend, BackendResult
-from nectarstt.events import WordTiming
-from nectarstt.models import resolve_model, download_root
+from openvox.stt.engine.backend import StreamingBackend, BackendResult
+from openvox.stt.events import WordTiming
+from openvox.stt.models import resolve_model, download_root
 
 log = logging.getLogger(__name__)
 

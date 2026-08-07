@@ -4,7 +4,7 @@ import wave
 
 import numpy as np
 
-from nectarstt import STTEngine, ArraySource, MicSource
+from openvox.stt import STTEngine, ArraySource, MicSource
 
 
 def load_audio_16k_mono(path: str, sample_rate: int = 16000) -> np.ndarray:
@@ -30,7 +30,7 @@ def load_audio_16k_mono(path: str, sample_rate: int = 16000) -> np.ndarray:
     except ImportError as exc:
         raise RuntimeError(
             f"'{path}' needs on-the-fly conversion to {sample_rate} Hz mono, "
-            'which requires PyAV. Install it with: pip install "nectarstt[demo]" '
+            'which requires PyAV. Install it with: pip install "openvox[stt-demo]" '
             "(or: pip install av)."
         ) from exc
 
@@ -61,8 +61,8 @@ def render_event(event, full: bool) -> str | None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="nectarstt-demo",
-                                description="Live NectarSTT transcription.")
+    p = argparse.ArgumentParser(prog="openvox-stt-demo",
+                                description="Live OpenVox STT transcription.")
     p.add_argument("--model", default="distil-large-v3")
     p.add_argument("--device", default="cuda")
     p.add_argument("--language", default="en")

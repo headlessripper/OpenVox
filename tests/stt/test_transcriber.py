@@ -1,8 +1,8 @@
 import numpy as np
-from nectarstt.engine.transcriber import StreamingTranscriber
-from nectarstt.engine.backend import StreamingBackend, BackendResult
-from nectarstt.events import WordTiming, PartialResult, FinalResult
-from nectarstt.config import Config
+from openvox.stt.engine.transcriber import StreamingTranscriber
+from openvox.stt.engine.backend import StreamingBackend, BackendResult
+from openvox.stt.events import WordTiming, PartialResult, FinalResult
+from openvox.stt.config import Config
 
 class ListSource:
     def __init__(self, frames): self._frames = frames

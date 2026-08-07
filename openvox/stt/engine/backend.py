@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from nectarstt.events import WordTiming
+from openvox.stt.events import WordTiming
 
 @dataclass(frozen=True)
 class BackendResult:

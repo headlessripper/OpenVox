@@ -1,9 +1,8 @@
-<<<<<<< HEAD
-NectarSTT Proprietary License (Zashiron License v1.2)
+OpenVox Proprietary License (Zashiron License v1.2)
 Copyright © 2025 Zashiron. All rights reserved.
 
 1. Definitions
-“Software” means the computer program known as NectarSTT,
+“Software” means the computer program known as OpenVox,
 including all executable code, source code, scripts, assets, documentation,
 updates, and related materials provided by Zashiron.
 
@@ -69,76 +68,5 @@ constitutes a material breach and may result in termination and legal action.
 
 14. Data Privacy
 Zashiron is committed to protecting your privacy. We do not collect or store any personal data without your consent. Any data collected during the use of the Software is used solely for the purpose of providing and improving the Software.
-=======
-NectarSTT Proprietary License (Zashiron License v1.2)
-Copyright © 2025 Zashiron. All rights reserved.
 
-1. Definitions
-“Software” means the computer program known as NectarSTT,
-including all executable code, source code, scripts, assets, documentation,
-updates, and related materials provided by Zashiron.
-
-“Licensee” (or “You”) means any person or legal entity authorized by Zashiron
-to use the Software under this License.
-
-“Use” means to install, execute, access, or otherwise interact with the Software.
-
-2. Grant of License
-Subject to the terms of this License, Zashiron grants You a non-exclusive,
-non-transferable, revocable license to install and use one copy of the Software
-for personal, educational, or approved commercial purposes.
-All other rights are reserved by Zashiron.
-
-3. Commercial Use
-You may use the Software for commercial purposes only if you have obtained an
-official commercial license or written authorization from Zashiron, and comply
-with all fees and conditions. Unauthorized commercial use is strictly prohibited.
-
-4. Restrictions
-You may not:
-- Copy, modify, or create derivative works of the Software.
-- Distribute, sublicense, rent, lease, lend, or resell the Software.
-- Circumvent or bypass licensing or activation mechanisms.
-- Remove or alter any copyright or proprietary notices.
-- Use the Software for illegal, unethical, or competing purposes.
-
-5. Ownership
-All rights, title, and interest in the Software remain the exclusive property of Zashiron.
-
-6. Updates and Support
-Zashiron may, at its discretion, provide updates, patches, or enhancements.
-Such updates remain governed by this License.
-
-7. Termination
-This License is effective until terminated. Upon termination, You must cease use
-and destroy all copies of the Software.
-
-8. Disclaimer of Warranties
-The Software is provided “AS IS”, without warranties of any kind, express or implied.
-
-9. Limitation of Liability
-In no event shall Zashiron be liable for any direct, indirect, incidental, or
-consequential damages arising from use or inability to use the Software.
-
-10. Governing Law
-This License is governed by the laws of the Republic of South Africa.
-
-11. Commercial Licensing Inquiries
-For enterprise or commercial licensing:
-Zashiron Licensing Department
-Email: Zashiron.inc@gmail.com
-Website: https://github.com/Zashiron
-
-12. Acknowledgment
-By installing or using the Software, You agree to be bound by this License.
-
-13. Anti-Decompilation Clause
-You expressly agree not to reverse engineer, decompile, disassemble, decrypt,
-modify, or otherwise attempt to derive the source code or algorithms of the Software,
-except where such activity is expressly permitted by law. Any unauthorized attempt
-constitutes a material breach and may result in termination and legal action.
-
-14. Data Privacy
-Zashiron is committed to protecting your privacy. We do not collect or store any personal data without your consent. Any data collected during the use of the Software is used solely for the purpose of providing and improving the Software.
->>>>>>> efc3e6b3fcb5271f8a2c63eb73b34038807b5a4d
 By using the Software, You acknowledge that You have read, understood, and agree to be bound by the terms of this License.

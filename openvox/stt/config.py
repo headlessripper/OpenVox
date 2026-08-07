@@ -30,7 +30,7 @@ class Config:
         env = os.environ if env is None else env
         type_map = {f.name: f.type for f in fields(cls)}
         for f in fields(cls):
-            key = f"NECTARSTT_{f.name.upper()}"
+            key = f"OPENVOX_STT_{f.name.upper()}"
             if key in env:
                 values[f.name] = env[key]
         coerced = {k: cls._coerce(k, v, type_map) for k, v in values.items()

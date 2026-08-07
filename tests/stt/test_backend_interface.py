@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
-from nectarstt.engine.backend import StreamingBackend, BackendResult
-from nectarstt.events import WordTiming
+from openvox.stt.engine.backend import StreamingBackend, BackendResult
+from openvox.stt.events import WordTiming
 
 def test_cannot_instantiate_abstract():
     with pytest.raises(TypeError):

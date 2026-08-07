@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from nectarstt.audio.vad import SileroVAD, _to_pcm16
+from openvox.stt.audio.vad import SileroVAD, _to_pcm16
 
 def test_to_pcm16_no_overflow_at_full_scale():
     """_to_pcm16 clips scaled values to prevent int16 overflow at full scale."""
