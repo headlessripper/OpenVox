@@ -40,6 +40,36 @@ class PatternVAD:
         return False
     def reset(self): pass
 
+class RecordingBackend(StreamingBackend):
+    """Records the length of audio passed to each partial vs final transcribe call."""
+    def __init__(self):
+        self.partial_lens = []
+        self.final_len = None
+    def transcribe(self, audio, sample_rate, language, word_timestamps):
+        if word_timestamps:
+            self.final_len = len(audio)
+            return BackendResult(text="x", words=[WordTiming("x", 0.0, 0.1, 1.0)])
+        self.partial_lens.append(len(audio))
+        return BackendResult(text="x", words=[])
+
+def test_partial_context_bounded_to_window():
+    """Partial passes must re-transcribe only a trailing window (bounded cost),
+    while the final pass uses the full utterance buffer. Under the old
+    whole-buffer approach the partial length would grow to the full buffer."""
+    window_samples = 2048                             # 4 frames of 512
+    cfg = Config(window_interval_ms=32, min_silence_ms=64, min_speech_ms=32,
+                 sample_rate=16000, device="cpu", compute_type="int8",
+                 partial_window_s=window_samples / 16000)
+    frame = np.zeros(512, dtype=np.float32)           # 32ms frames
+    frames = [frame] * 20 + [frame] * 4               # 20 speech (10240), 4 silence
+    rec = RecordingBackend()
+    t = StreamingTranscriber(rec, ScriptVAD(speech_frames=20), cfg)
+    list(t.run(ListSource(frames)))
+    assert rec.partial_lens                                    # partials happened
+    assert max(rec.partial_lens) <= window_samples + 512       # bounded to trailing window
+    assert rec.final_len == 20 * 512                           # final uses the FULL buffer
+    assert max(rec.partial_lens) < rec.final_len               # proves the bound
+
 def test_emits_partials_then_final():
     cfg = Config(window_interval_ms=64, min_silence_ms=64, min_speech_ms=32,
                  sample_rate=16000, device="cpu", compute_type="int8")

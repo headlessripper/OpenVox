@@ -34,7 +34,8 @@ class StreamingTranscriber:
                     had_speech = True
                     if ms_since_window >= cfg.window_interval_ms:
                         ms_since_window = 0.0
-                        audio = np.concatenate(buffer)
+                        window_samples = int(cfg.partial_window_s * cfg.sample_rate)
+                        audio = self._tail_window(buffer, window_samples)
                         res = self._backend.transcribe(
                             audio, cfg.sample_rate, cfg.language, word_timestamps=False)
                         committed, volatile = agree.update(res.text.split())
@@ -77,3 +78,25 @@ class StreamingTranscriber:
         """Drop a sub-threshold speech blip without emitting any result."""
         agree.finalize()
         self._vad.reset()
+
+    @staticmethod
+    def _tail_window(buffer: list[np.ndarray], window_samples: int) -> np.ndarray:
+        """Concatenate only the trailing frames covering ``window_samples``.
+
+        Partial passes re-transcribe on every window tick, so scanning the
+        whole growing buffer each time would cost O(n^2) over a long utterance.
+        Bounding the context to a trailing window keeps each partial pass O(1)
+        in the utterance length. Gathering from the end (rather than
+        concatenating the full buffer then slicing) keeps the gather itself
+        bounded too. If the buffer is shorter than the window, all of it is
+        used.
+        """
+        tail: list[np.ndarray] = []
+        total = 0
+        for frame in reversed(buffer):
+            tail.append(frame)
+            total += len(frame)
+            if total >= window_samples:
+                break
+        tail.reverse()
+        return np.concatenate(tail)
