@@ -1,4 +1,5 @@
 """NectarSTT — offline streaming speech-to-text."""
+import dataclasses
 from collections.abc import Iterator
 
 import numpy as np
@@ -17,7 +18,7 @@ __all__ = ["STTEngine", "Config", "PartialResult", "FinalResult",
 class STTEngine:
     def __init__(self, model: str | None = None, device: str | None = None,
                  language: str | None = None, config: Config | None = None) -> None:
-        cfg = config or Config()
+        cfg = dataclasses.replace(config) if config is not None else Config()
         if model is not None:
             cfg.model = model
         if device is not None:
@@ -37,13 +38,10 @@ class STTEngine:
         return self._transcriber.run(source)
 
     def transcribe_file(self, path: str) -> FinalResult:
-        import wave
-        with wave.open(path, "rb") as w:
-            raw = w.readframes(w.getnframes())
-            sr = w.getframerate()
-        audio = np.frombuffer(raw, dtype=np.int16).astype(np.float32) / 32768.0
+        source = FileSource(path, sample_rate=self._config.sample_rate)
+        audio = np.concatenate(list(source.frames()))
         res = self._backend.transcribe(
-            audio, sr, self._config.language, word_timestamps=True)
+            audio, self._config.sample_rate, self._config.language, word_timestamps=True)
         start = res.words[0].start if res.words else 0.0
         end = res.words[-1].end if res.words else 0.0
         return FinalResult(text=res.text, words=res.words, start=start, end=end)

@@ -32,12 +32,12 @@ class FileSource(FrameSource):
 
             if channels != 1:
                 raise ValueError(
-                    f"FileSource expects 16000 Hz mono 16-bit WAV; "
+                    f"FileSource expects {self._sample_rate} Hz mono 16-bit WAV; "
                     f"got {framerate} Hz, {channels} ch, {sampwidth} bytes/sample"
                 )
             if sampwidth != 2:
                 raise ValueError(
-                    f"FileSource expects 16000 Hz mono 16-bit WAV; "
+                    f"FileSource expects {self._sample_rate} Hz mono 16-bit WAV; "
                     f"got {framerate} Hz, {channels} ch, {sampwidth} bytes/sample"
                 )
             if framerate != self._sample_rate:

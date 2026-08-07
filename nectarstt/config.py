@@ -36,8 +36,8 @@ class Config:
     @staticmethod
     def _coerce(name: str, value: Any, type_map: dict[str, Any]) -> Any:
         t = type_map[name]
-        if t is int or t == "int":
+        if t is int:
             return int(value)
-        if t is float or t == "float":
+        if t is float:
             return float(value)
         return str(value)

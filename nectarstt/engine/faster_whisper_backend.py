@@ -27,8 +27,11 @@ class FasterWhisperBackend(StreamingBackend):
                 download_root=download_root(),
             )
         except Exception as exc:  # CUDA/cuDNN not available, etc.
-            log.warning("Backend '%s' on %s failed (%s); falling back to CPU int8.",
-                        model_id, device, exc)
+            log.error(
+                "Primary backend init failed for '%s' on %s (%s: %s); "
+                "falling back to CPU int8.",
+                model_id, device, type(exc).__name__, exc,
+            )
             self._model = WhisperModel(
                 model_id, device="cpu", compute_type="int8",
                 download_root=download_root(),

@@ -23,41 +23,44 @@ class StreamingTranscriber:
         ms_since_window = 0.0
         had_speech = False
 
-        for frame in source.frames():
-            frame_ms = 1000.0 * len(frame) / cfg.sample_rate
-            if self._vad.is_speech(frame):
-                buffer.append(frame)
-                speech_ms += frame_ms
-                silence_ms = 0.0
-                ms_since_window += frame_ms
-                had_speech = True
-                if ms_since_window >= cfg.window_interval_ms:
-                    ms_since_window = 0.0
-                    audio = np.concatenate(buffer)
-                    res = self._backend.transcribe(
-                        audio, cfg.sample_rate, cfg.language, word_timestamps=False)
-                    committed, volatile = agree.update(res.text.split())
-                    yield PartialResult(
-                        text=res.text,
-                        committed_prefix=" ".join(committed),
-                        volatile_tail=" ".join(volatile),
-                    )
-            else:
-                if had_speech:
-                    silence_ms += frame_ms
-                    if silence_ms >= cfg.min_silence_ms:
-                        if speech_ms >= cfg.min_speech_ms:
-                            yield self._finalize(buffer, agree)
-                        else:
-                            # Sub-threshold speech blip: discard silently so a
-                            # later real utterance doesn't get concatenated
-                            # onto this stale buffer.
-                            self._discard(agree)
-                        buffer, speech_ms, silence_ms = [], 0.0, 0.0
-                        ms_since_window, had_speech = 0.0, False
+        try:
+            for frame in source.frames():
+                frame_ms = 1000.0 * len(frame) / cfg.sample_rate
+                if self._vad.is_speech(frame):
+                    buffer.append(frame)
+                    speech_ms += frame_ms
+                    silence_ms = 0.0
+                    ms_since_window += frame_ms
+                    had_speech = True
+                    if ms_since_window >= cfg.window_interval_ms:
+                        ms_since_window = 0.0
+                        audio = np.concatenate(buffer)
+                        res = self._backend.transcribe(
+                            audio, cfg.sample_rate, cfg.language, word_timestamps=False)
+                        committed, volatile = agree.update(res.text.split())
+                        yield PartialResult(
+                            text=res.text,
+                            committed_prefix=" ".join(committed),
+                            volatile_tail=" ".join(volatile),
+                        )
+                else:
+                    if had_speech:
+                        silence_ms += frame_ms
+                        if silence_ms >= cfg.min_silence_ms:
+                            if speech_ms >= cfg.min_speech_ms:
+                                yield self._finalize(buffer, agree)
+                            else:
+                                # Sub-threshold speech blip: discard silently so a
+                                # later real utterance doesn't get concatenated
+                                # onto this stale buffer.
+                                self._discard(agree)
+                            buffer, speech_ms, silence_ms = [], 0.0, 0.0
+                            ms_since_window, had_speech = 0.0, False
 
-        if buffer and speech_ms >= cfg.min_speech_ms:
-            yield self._finalize(buffer, agree)
+            if buffer and speech_ms >= cfg.min_speech_ms:
+                yield self._finalize(buffer, agree)
+        finally:
+            source.close()
 
     def _finalize(self, buffer: list[np.ndarray], agree: LocalAgreement) -> FinalResult:
         cfg = self._cfg
