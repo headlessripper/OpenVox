@@ -9,96 +9,80 @@ This project focuses on **accurate speech recognition**, **low latency**, and **
 
 ## ✨ Features
 
-- 🎙️ Real-time speech-to-text
+- 🎙️ Real-time streaming speech-to-text
 - 🧠 Modular engine design (easy to extend)
 - ⚡ Optimized for low latency
 - 🔌 Designed to integrate with AI / assistant systems
 - 🖥️ Cross-platform (Windows, Linux)
-- 🧩 Compatible with TTS pipelines (Piper / eSpeak NG)
+- 🌍 Supports multiple Whisper model sizes (tiny through large-v3)
 
 ---
 
 ## 🛠️ Installation
 
-### 0️⃣ Direct install
-```
-pip install nectarstt
-```
+Clone the repository and install in editable mode with development dependencies:
 
-- `OR if you want code`
-
-### 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/headlessripper/NectarSTT.git
 cd NectarSTT
+pip install -e ".[dev]"
 ```
----
-
-### 2️⃣ Create a virtual environment (recommended)
-python -m venv venv
-venv\Scripts\activate 
-
-### 3️⃣ Install dependencies
-pip install -r requirements.txt
 
 ---
 
-## 📁 Usage Examples
+## 📁 Usage
 
-### Direct use after installation
-- `to use the GUI for NectarSTT run:`
-    ``` 
-    NectarSTT
-    ```  
----
-- `use in code:`
-### TTS:
+### Live mic transcription
+
+```bash
+python -m nectarstt.demo
+```
+
+Available demo CLI flags:
+- `--model`: model size (default: `distil-large-v3`; options: `tiny`, `base`, `small`, `distil-large-v3`, `large-v3`)
+- `--device`: compute device (default: `cuda`; also: `cpu`, `mps`)
+- `--language`: ISO 639-1 language code (default: `en`)
+- `--file`: transcribe a WAV file instead of live mic input
+
+Example:
+```bash
+python -m nectarstt.demo --model base --device cpu --file clip.wav
+```
+
+### In code
+
 ```python
-from nectarstt import piper_tts
+from nectarstt import STTEngine
 
-piper_tts("This is top-level API usage.", "out.wav")
+engine = STTEngine(model="distil-large-v3", device="cuda", language="en")
 
+for event in engine.stream():
+    if event.is_partial:
+        print("~", event.text, end="\r")
+    else:
+        print("✓", event.text)
 ```
 
----
+### Batch transcription
 
-### STT:
 ```python
-from nectarstt import record_until_silence
+from nectarstt import STTEngine
 
-text = record_until_silence()
+engine = STTEngine(model="distil-large-v3", device="cuda", language="en")
 
+result = engine.transcribe_file("clip.wav")
+print(result.text)
+for word in result.words:
+    print(f"  {word.word}: [{word.start:.2f}–{word.end:.2f}s, confidence={word.probability:.2f}]")
 ```
 
-> ⚠️ **Note:** Before you use download the Main-Engine from [Engine](https://github.com/headlessripper/NectarSTT/releases/download/1.0/Main-Engine.zip) then extract it to the root folder of your project.
-
 ---
 
-## 📦 Models & Assets
+## 🚀 Roadmap
 
-Due to GitHub size limits, speech models and voice data are zipped into **Main-Engine.zip**.  
-This archive contains:
-
-- `Main-Engine/Model/`
-- `Main-Engine/TTS-Engine/`
-- `Main-Engine/STT-Engine/`
-- `Main-Engine/Images/`
-- `Main-Engine/Sound/`
-- `Main-Engine/Source/`
-
-Extract `Main-Engine.zip` into the project directory before running NectarSTT.
-
-> 💡 A setup script or model downloader may be added in future releases.
-
----
-
-## 🚀 Roadmap / Ideas
-
-- Automated model download & setup script
-- Extended TTS engine support
-- Additional language models
-- Optional Futher GPU acceleration (where supported)
-- Enhanced logging and debugging tools
+For detailed design specifications and implementation plans, see:
+- **Specifications:** [`docs/superpowers/specs/`](docs/superpowers/specs/)
+- **Plans:** [`docs/superpowers/plans/`](docs/superpowers/plans/)
 
 ---
 
@@ -130,4 +114,4 @@ If you find **NectarSTT** useful:
 
 ---
 
-**Built with ❤️ in Python for high-quality, low-latency STT And TTS Engine**
+**Built with ❤️ in Python for high-quality, low-latency speech recognition**
