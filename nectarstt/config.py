@@ -15,6 +15,10 @@ class Config:
     min_silence_ms: int = 500
     min_speech_ms: int = 200
     window_interval_ms: int = 500
+    # Cap on how much trailing audio a PARTIAL pass re-transcribes. Bounds the
+    # per-window cost so long utterances stay real-time (the final pass still
+    # uses the full utterance for an accurate, complete result).
+    partial_window_s: float = 10.0
 
     @classmethod
     def load(cls, path: str | None = None,

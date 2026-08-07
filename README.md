@@ -9,12 +9,13 @@ This project focuses on **accurate speech recognition**, **low latency**, and **
 
 ## ✨ Features
 
-- 🎙️ Real-time streaming speech-to-text
-- 🧠 Modular engine design (easy to extend)
-- ⚡ Optimized for low latency
+- 🎙️ Real-time streaming speech-to-text with live partial + final results
+- 🧠 Modular engine design (swappable backend, easy to extend)
+- ⚡ Low latency — partial passes are bounded to a sliding window so long speech stays real-time
 - 🔌 Designed to integrate with AI / assistant systems
 - 🖥️ Cross-platform (Windows, Linux)
 - 🌍 Supports multiple Whisper model sizes (tiny through large-v3)
+- 🎧 Demo accepts any audio format / sample rate (auto-decoded & resampled to 16 kHz)
 
 ---
 
@@ -28,6 +29,14 @@ cd NectarSTT
 pip install -e ".[dev]"
 ```
 
+The demo can transcribe **any** audio format or sample rate (`.ogg`, `.mp3`, `.m4a`, 48 kHz WAV, stereo, …) by decoding and resampling on the fly. That requires the optional `demo` extra (PyAV, which bundles ffmpeg):
+
+```bash
+pip install -e ".[dev,demo]"
+```
+
+Without it, the demo still works on files that are already 16 kHz mono 16-bit WAV, and the live mic always works.
+
 ---
 
 ## 📁 Usage
@@ -38,15 +47,22 @@ pip install -e ".[dev]"
 python -m nectarstt.demo
 ```
 
+By default the demo prints a **clean transcript** — only the finalized lines (`✓`). Pass `--full` for the *Full Transcript View*, which also streams the live partial hypotheses (`~`) as each sentence forms.
+
 Available demo CLI flags:
 - `--model`: model size (default: `distil-large-v3`; options: `tiny`, `base`, `small`, `distil-large-v3`, `large-v3`)
 - `--device`: compute device (default: `cuda`; also: `cpu`). Falls back to CPU automatically if CUDA is unavailable.
 - `--language`: ISO 639-1 language code (default: `en`)
-- `--file`: transcribe a WAV file instead of live mic input
+- `--file`: transcribe an audio file instead of live mic input. **Any format / sample rate** is accepted — non-WAV or non-16 kHz files are decoded and resampled automatically (requires the `demo` extra; see Installation).
+- `--full`: Full Transcript View — also show live partial hypotheses (`~`), not just finalized results.
 
-Example:
+Examples:
 ```bash
-python -m nectarstt.demo --model base --device cpu --file clip.wav
+# Clean transcript (finals only) of any audio file:
+python -m nectarstt.demo --model base --device cpu --file recording.ogg
+
+# Watch partials update live as each sentence forms:
+python -m nectarstt.demo --model base --file clip.mp3 --full
 ```
 
 ### In code
