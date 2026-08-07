@@ -3,6 +3,11 @@ from pysilero_vad import SileroVoiceActivityDetector
 
 _WINDOW = 512  # samples @ 16kHz required by silero
 
+def _to_pcm16(window: np.ndarray) -> bytes:
+    """Convert float32 audio [-1.0, 1.0] to int16 PCM bytes, clipping scaled value."""
+    scaled = np.clip(window * 32768.0, -32768, 32767)
+    return scaled.astype(np.int16).tobytes()
+
 class SileroVAD:
     def __init__(self, threshold: float = 0.5, sample_rate: int = 16000) -> None:
         if sample_rate != 16000:
@@ -17,8 +22,7 @@ class SileroVAD:
         while len(self._buf) >= _WINDOW:
             window = self._buf[:_WINDOW]
             self._buf = self._buf[_WINDOW:]
-            pcm = np.clip(window, -1.0, 1.0) * 32768.0
-            pcm = pcm.astype(np.int16).tobytes()
+            pcm = _to_pcm16(window)
             if self._detector(pcm) >= self._threshold:
                 speech = True
         return speech

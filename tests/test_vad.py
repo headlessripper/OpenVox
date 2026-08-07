@@ -1,6 +1,17 @@
 import numpy as np
 import pytest
-from nectarstt.audio.vad import SileroVAD
+from nectarstt.audio.vad import SileroVAD, _to_pcm16
+
+def test_to_pcm16_no_overflow_at_full_scale():
+    """_to_pcm16 clips scaled values to prevent int16 overflow at full scale."""
+    # Positive full scale: 1.0 * 32768 = 32768, which must clip to 32767
+    pcm = np.frombuffer(_to_pcm16(np.ones(512, dtype=np.float32)), dtype=np.int16)
+    assert pcm.min() >= 0, "Positive full scale should not wrap to negative"
+    assert pcm.max() == 32767, "Positive full scale should clip to 32767, not overflow"
+    # Negative full scale: -1.0 * 32768 = -32768, which is valid
+    pcm_neg = np.frombuffer(_to_pcm16(-np.ones(512, dtype=np.float32)), dtype=np.int16)
+    assert pcm_neg.max() <= 0, "Negative full scale should not wrap to positive"
+    assert pcm_neg.min() == -32768, "Negative full scale should be -32768"
 
 def test_rejects_non_16k_sample_rate():
     """ValueError when constructing SileroVAD with non-16kHz sample rate."""
