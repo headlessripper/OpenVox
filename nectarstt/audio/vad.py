@@ -17,7 +17,8 @@ class SileroVAD:
         while len(self._buf) >= _WINDOW:
             window = self._buf[:_WINDOW]
             self._buf = self._buf[_WINDOW:]
-            pcm = (window * 32768.0).astype(np.int16).tobytes()
+            pcm = np.clip(window, -1.0, 1.0) * 32768.0
+            pcm = pcm.astype(np.int16).tobytes()
             if self._detector(pcm) >= self._threshold:
                 speech = True
         return speech
