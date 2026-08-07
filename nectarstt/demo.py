@@ -1,10 +1,5 @@
 import argparse
 import sys
-import io
-
-# Ensure UTF-8 encoding on Windows
-if sys.stdout.encoding.lower() != 'utf-8':
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 from nectarstt import STTEngine, FileSource
 
@@ -18,6 +13,13 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 def main(argv: list[str] | None = None) -> int:
+    # Gracefully reconfigure stdout to UTF-8 if supported (for Unicode output).
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+
     args = build_parser().parse_args(argv)
     engine = STTEngine(model=args.model, device=args.device, language=args.language)
     source = FileSource(args.file) if args.file else None
