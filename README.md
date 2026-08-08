@@ -197,6 +197,8 @@ pip install -e ".[enhance]"
 pip install resemble-enhance --no-deps
 ```
 
+The `[enhance]` extra installs CPU torch; for NVIDIA GPU add a CUDA torch build: `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121`.
+
 ```bash
 python -m openvox.enhance.demo --in poor.wav --out clean.wav
 ```

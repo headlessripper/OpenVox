@@ -41,19 +41,21 @@ class VoiceCloneEngine:
     def _enhanced_reference(self, reference_audio: str) -> str:
         """Return a cached, cleaned copy of the reference; fall back to the raw
         path if enhancement is unavailable or fails (never breaks cloning)."""
-        from openvox._paths import cache_dir
-        st = os.stat(reference_audio)
-        key = hashlib.sha1(
-            f"{os.path.abspath(reference_audio)}|{st.st_mtime_ns}|{st.st_size}".encode()
-        ).hexdigest()
-        out = os.path.join(cache_dir("enhance/cache"), key + ".wav")
-        if os.path.exists(out) and os.path.getsize(out) > 0:
-            return out
         try:
+            from openvox._paths import cache_dir
+            st = os.stat(reference_audio)
+            key = hashlib.sha1(
+                f"{os.path.abspath(reference_audio)}|{st.st_mtime_ns}|{st.st_size}".encode()
+            ).hexdigest()
+            out = os.path.join(cache_dir("enhance/cache"), key + ".wav")
+            if os.path.exists(out) and os.path.getsize(out) > 0:
+                return out
             from openvox.enhance import EnhanceEngine
             if self._enhancer is None:
                 self._enhancer = EnhanceEngine(device=self._config.device)
-            self._enhancer.enhance_file(reference_audio).save_wav(out)
+            tmp = out + ".tmp"
+            self._enhancer.enhance_file(reference_audio).save_wav(tmp)
+            os.replace(tmp, out)
             return out
         except Exception as exc:
             log.info("Reference enhancement unavailable (%s); cloning from the raw "

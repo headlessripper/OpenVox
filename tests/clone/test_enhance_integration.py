@@ -53,3 +53,14 @@ def test_enhance_unavailable_degrades_to_raw(monkeypatch, tmp_path):
     e = VoiceCloneEngine()
     e.clone("hi", str(ref), enhance=True)          # must not raise
     assert e._backend.ref == str(ref)              # degraded to raw reference
+
+def test_stat_failure_degrades_to_raw(monkeypatch, tmp_path):
+    import openvox.clone.engine as eng
+    monkeypatch.setattr(eng, "ChatterboxBackend", _RecordingBackend)
+    ref = tmp_path / "ref.wav"; _wav(ref)
+    e = VoiceCloneEngine()
+    # Patch cache_dir to raise, forcing error inside _enhanced_reference's try block
+    import openvox._paths
+    monkeypatch.setattr(openvox._paths, "cache_dir", lambda *a, **k: (_ for _ in ()).throw(OSError("cache_dir boom")))
+    e.clone("hi", str(ref), enhance=True)          # must not raise
+    assert e._backend.ref == str(ref)              # degraded to raw
