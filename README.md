@@ -6,7 +6,7 @@ OpenVox is a complete voice stack — speech-to-text *and* text-to-speech — th
 
 The goal is simple and ambitious: **match the quality of cloud services like ElevenLabs, but 100% offline** — and then beat them on the things a cloud API structurally can't do (zero latency jitter, zero marginal cost, total privacy, and deep on-device integration).
 
-Speech-to-text is **available today**. Text-to-speech, voice cloning, and ultra-low-latency streaming are **in active development** (see the roadmap below).
+Speech-to-text and text-to-speech are **available today**. Voice cloning and ultra-low-latency streaming are **in active development** (see the roadmap below).
 
 ---
 
@@ -32,7 +32,7 @@ OpenVox is being built as a series of focused, independently-shipped engines und
 | Capability | Status |
 |---|---|
 | 🎙️ **Streaming speech-to-text** (live partials + finals, word timestamps) | ✅ **Available** |
-| 🗣️ **Text-to-speech** — natural, human-sounding built-in voices | 🚧 In development |
+| 🗣️ **Text-to-speech** — natural, human-sounding built-in voices | ✅ Available |
 | 🎭 **Voice cloning** — a custom voice from a short sample, fully local | 🔭 Planned |
 | ⚡ **Ultra-low-latency streaming TTS** with barge-in (real-time robot speech) | 🔭 Planned |
 | 🧩 **Headless daemon + ROS 2 node** for robot integration | 🔭 Planned |
@@ -52,7 +52,7 @@ OpenVox is being built as a series of focused, independently-shipped engines und
 OpenVox is one package, `openvox`, with each engine kept modular and independently installable so you only ship what a given device needs:
 
 - **`openvox.stt`** — the speech-to-text engine (available today).
-- **`openvox.tts`** — the text-to-speech engine (in development).
+- **`openvox.tts`** — the text-to-speech engine (available today).
 
 Each engine sits behind a **swappable backend interface**, so the underlying model can be upgraded — or replaced with a purpose-built one — without changing the code that uses it. `import openvox` stays lightweight; you pull in an engine (and only its dependencies) via `openvox.stt` / `openvox.tts`.
 
@@ -123,9 +123,32 @@ for word in result.words:
 
 ---
 
-## 🗣️ Text-to-Speech (coming next)
+## 🗣️ Text-to-Speech (available today)
 
-The TTS engine will deliver **genuinely human-sounding, fully offline speech** — a decisive step past classic robotic offline voices — with built-in voices first, then voice cloning and real-time streaming. It follows the same offline, swappable-backend design as the STT engine. Design and progress live in [`docs/superpowers/`](docs/superpowers/).
+Genuinely human-sounding speech, fully offline, with built-in voices.
+
+```bash
+pip install -e ".[tts]"
+```
+
+```bash
+# Speak a line aloud (and optionally save it):
+python -m openvox.tts.demo --text "Hello, I am OpenVox." --out hello.wav
+```
+
+```python
+from openvox.tts import TTSEngine
+
+engine = TTSEngine(voice="af_heart", device="cuda")   # falls back to CPU
+engine.say("This runs entirely offline.")             # synthesize + speak
+
+result = engine.synthesize("Save me to a file.")
+result.save_wav("out.wav")
+
+engine.voices()   # list the built-in voices
+```
+
+**Demo flags:** `--text` (required) · `--voice` (default `af_heart`) · `--device` (`cuda`/`cpu`) · `--speed` (default `1.0`) · `--out PATH` (save a WAV) · `--no-play` (skip playback).
 
 ---
 
