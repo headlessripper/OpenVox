@@ -6,7 +6,7 @@ OpenVox is a complete voice stack — speech-to-text *and* text-to-speech — th
 
 The goal is simple and ambitious: **match the quality of cloud services like ElevenLabs, but 100% offline** — and then beat them on the things a cloud API structurally can't do (zero latency jitter, zero marginal cost, total privacy, and deep on-device integration).
 
-Speech-to-text and text-to-speech are **available today**. Voice cloning and ultra-low-latency streaming are **in active development** (see the roadmap below).
+Speech-to-text and text-to-speech are **available today**. Voice cloning is **available today**; ultra-low-latency streaming is **in active development** (see the roadmap below).
 
 ---
 
@@ -33,7 +33,7 @@ OpenVox is being built as a series of focused, independently-shipped engines und
 |---|---|
 | 🎙️ **Streaming speech-to-text** (live partials + finals, word timestamps) | ✅ **Available** |
 | 🗣️ **Text-to-speech** — natural, human-sounding built-in voices | ✅ Available |
-| 🎭 **Voice cloning** — a custom voice from a short sample, fully local | 🔭 Planned |
+| 🎭 **Voice cloning** — a custom voice from a short sample, fully local | ✅ Available |
 | ⚡ **Ultra-low-latency streaming TTS** with barge-in (real-time robot speech) | 🔭 Planned |
 | 🧩 **Headless daemon + ROS 2 node** for robot integration | 🔭 Planned |
 | 🖥️ **Hardware backends** — CUDA today; Jetson / ARM / Raspberry Pi next | 🔭 Planned |
@@ -53,6 +53,7 @@ OpenVox is one package, `openvox`, with each engine kept modular and independent
 
 - **`openvox.stt`** — the speech-to-text engine (available today).
 - **`openvox.tts`** — the text-to-speech engine (available today).
+- **`openvox.clone`** — the zero-shot voice-cloning engine (available today).
 
 Each engine sits behind a **swappable backend interface**, so the underlying model can be upgraded — or replaced with a purpose-built one — without changing the code that uses it. `import openvox` stays lightweight; you pull in an engine (and only its dependencies) via `openvox.stt` / `openvox.tts`.
 
@@ -153,6 +154,33 @@ engine.voices()   # list the built-in voices
 ```
 
 **Demo flags:** `--text` (required) · `--voice` (default `af_heart`) · `--device` (`cuda`/`cpu`) · `--speed` (default `1.0`) · `--out PATH` (save a WAV) · `--no-play` (skip playback).
+
+---
+
+## 🎭 Voice Cloning (available today)
+
+Zero-shot voice cloning — give a short reference clip and speak any text in that voice, fully offline (via [Chatterbox](https://github.com/resemble-ai/chatterbox), MIT). Every generated clip carries an imperceptible neural watermark for traceability.
+
+```bash
+pip install -e ".[clone]"                 # CPU (pulls PyTorch)
+# for NVIDIA GPU, also install a CUDA torch build:
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+```
+
+```bash
+python -m openvox.clone.demo --text "This is my cloned voice." --ref myvoice.mp3 --out cloned.wav
+```
+
+```python
+from openvox.clone import VoiceCloneEngine
+
+engine = VoiceCloneEngine(device="cuda")            # falls back to CPU
+result = engine.clone("Speak this in my voice.", reference_audio="myvoice.mp3")
+result.save_wav("cloned.wav")
+engine.say("Nice to meet you.", reference_audio="myvoice.mp3")   # clone + speak
+```
+
+**Demo flags:** `--text` (required) · `--ref PATH` (required, any audio format) · `--exaggeration` (default 0.5) · `--cfg` (default 0.5) · `--device` (`cuda`/`cpu`) · `--out PATH` · `--no-play`.
 
 ---
 
