@@ -32,7 +32,7 @@ OpenVox is being built as a series of focused, independently-shipped engines und
 | Capability | Status |
 |---|---|
 | 🎙️ **Streaming speech-to-text** (live partials + finals, word timestamps) | ✅ **Available** |
-| 🗣️ **Text-to-speech** — natural, human-sounding built-in voices | 🚧 In development |
+| 🗣️ **Text-to-speech** — natural, human-sounding built-in voices | ✅ Available |
 | 🎭 **Voice cloning** — a custom voice from a short sample, fully local | 🔭 Planned |
 | ⚡ **Ultra-low-latency streaming TTS** with barge-in (real-time robot speech) | 🔭 Planned |
 | 🧩 **Headless daemon + ROS 2 node** for robot integration | 🔭 Planned |
@@ -123,9 +123,32 @@ for word in result.words:
 
 ---
 
-## 🗣️ Text-to-Speech (coming next)
+## 🗣️ Text-to-Speech (available today)
 
-The TTS engine will deliver **genuinely human-sounding, fully offline speech** — a decisive step past classic robotic offline voices — with built-in voices first, then voice cloning and real-time streaming. It follows the same offline, swappable-backend design as the STT engine. Design and progress live in [`docs/superpowers/`](docs/superpowers/).
+Genuinely human-sounding speech, fully offline, with built-in voices.
+
+```bash
+pip install -e ".[tts]"
+```
+
+```bash
+# Speak a line aloud (and optionally save it):
+python -m openvox.tts.demo --text "Hello, I am OpenVox." --out hello.wav
+```
+
+```python
+from openvox.tts import TTSEngine
+
+engine = TTSEngine(voice="af_heart", device="cuda")   # falls back to CPU
+engine.say("This runs entirely offline.")             # synthesize + speak
+
+result = engine.synthesize("Save me to a file.")
+result.save_wav("out.wav")
+
+engine.voices()   # list the built-in voices
+```
+
+**Demo flags:** `--text` (required) · `--voice` (default `af_heart`) · `--device` (`cuda`/`cpu`) · `--speed` (default `1.0`) · `--out PATH` (save a WAV) · `--no-play` (skip playback).
 
 ---
 
