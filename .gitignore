@@ -216,3 +216,12 @@ Main-Engine
 2.ogg
 2.wav
 hello.wav
+_enh_test.wav
+cloned.wav
+poor_16k.wav
+reference_hq.wav
+sample_cloned.wav
+sample_reference_10s.wav
+enhanced_44k.wav
+cloned_hq_default.wav
+cloned_hq_cfg03.wav
