@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "openvox"
 version = "0.1.0"
-description = "All-in-one, fully offline voice engine (speech-to-text; text-to-speech next)."
+description = "All-in-one, fully offline voice engine (speech-to-text and text-to-speech)."
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.24", "platformdirs>=4.0"]
 

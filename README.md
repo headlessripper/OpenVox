@@ -6,7 +6,7 @@ OpenVox is a complete voice stack — speech-to-text *and* text-to-speech — th
 
 The goal is simple and ambitious: **match the quality of cloud services like ElevenLabs, but 100% offline** — and then beat them on the things a cloud API structurally can't do (zero latency jitter, zero marginal cost, total privacy, and deep on-device integration).
 
-Speech-to-text is **available today**. Text-to-speech, voice cloning, and ultra-low-latency streaming are **in active development** (see the roadmap below).
+Speech-to-text and text-to-speech are **available today**. Voice cloning and ultra-low-latency streaming are **in active development** (see the roadmap below).
 
 ---
 
@@ -52,7 +52,7 @@ OpenVox is being built as a series of focused, independently-shipped engines und
 OpenVox is one package, `openvox`, with each engine kept modular and independently installable so you only ship what a given device needs:
 
 - **`openvox.stt`** — the speech-to-text engine (available today).
-- **`openvox.tts`** — the text-to-speech engine (in development).
+- **`openvox.tts`** — the text-to-speech engine (available today).
 
 Each engine sits behind a **swappable backend interface**, so the underlying model can be upgraded — or replaced with a purpose-built one — without changing the code that uses it. `import openvox` stays lightweight; you pull in an engine (and only its dependencies) via `openvox.stt` / `openvox.tts`.
 
