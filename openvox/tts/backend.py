@@ -7,7 +7,7 @@ import numpy as np
 class AudioDeviceError(RuntimeError):
     pass
 
-@dataclass
+@dataclass(eq=False)
 class TTSResult:
     audio: np.ndarray          # mono float32 in [-1, 1]
     sample_rate: int

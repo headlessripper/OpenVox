@@ -35,3 +35,9 @@ def test_config_not_mutated(patched):
     cfg = TTSConfig()
     TTSEngine(voice="am_michael", config=cfg)
     assert cfg.voice == "af_heart"     # caller's config untouched
+
+def test_nonpositive_speed_raises(patched):
+    with pytest.raises(ValueError, match="speed must be > 0"):
+        TTSEngine().synthesize("hello", speed=0)
+    with pytest.raises(ValueError, match="speed must be > 0"):
+        TTSEngine().synthesize("hello", speed=-1)

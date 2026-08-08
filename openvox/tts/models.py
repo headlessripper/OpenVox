@@ -1,4 +1,5 @@
 import os
+import shutil
 import urllib.request
 
 from openvox._paths import cache_dir
@@ -32,16 +33,24 @@ def ensure_assets() -> tuple[str, str]:
     root = cache_dir("tts/models")
     model_path = os.path.join(root, "kokoro-v1.0.onnx")
     voices_path = os.path.join(root, "voices-v1.0.bin")
-    _download_if_missing(_MODEL_URL, model_path)
-    _download_if_missing(_VOICES_URL, voices_path)
+    _download_if_missing(_MODEL_URL, model_path, min_bytes=100_000_000)
+    _download_if_missing(_VOICES_URL, voices_path, min_bytes=1_000_000)
     return model_path, voices_path
 
-def _download_if_missing(url: str, dest: str) -> None:
+def _download_if_missing(url: str, dest: str, min_bytes: int = 0) -> None:
     if os.path.exists(dest) and os.path.getsize(dest) > 0:
         return
     tmp = dest + ".part"
     try:
-        urllib.request.urlretrieve(url, tmp)
+        with urllib.request.urlopen(url, timeout=30) as resp, open(tmp, "wb") as f:
+            shutil.copyfileobj(resp, f)
+        size = os.path.getsize(tmp)
+        if size < min_bytes:
+            os.remove(tmp)
+            raise RuntimeError(
+                f"Downloaded asset from {url} is too small ({size} bytes < {min_bytes}); "
+                "likely a truncated or error response."
+            )
         os.replace(tmp, dest)
     except Exception as exc:
         if os.path.exists(tmp):

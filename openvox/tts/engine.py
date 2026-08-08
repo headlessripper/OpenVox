@@ -28,10 +28,15 @@ class TTSEngine:
         v = voice if voice is not None else self._config.voice
         validate_voice(v)
         s = speed if speed is not None else self._config.speed
+        if s <= 0:
+            raise ValueError("speed must be > 0")
         return self._backend.synthesize(text, v, s)
 
     def play(self, result: TTSResult) -> None:
-        import sounddevice as sd
+        try:
+            import sounddevice as sd
+        except ImportError as exc:
+            raise AudioDeviceError("Playback needs the audio extra: pip install \"openvox[tts]\".") from exc
         try:
             sd.play(result.audio, result.sample_rate)
             sd.wait()
