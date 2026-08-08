@@ -13,12 +13,15 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--device", default="cuda")
     p.add_argument("--out", default=None, help="Also save the audio to this WAV path.")
     p.add_argument("--no-play", action="store_true", help="Do not play the audio aloud.")
+    p.add_argument("--no-enhance", dest="enhance", action="store_false",
+                   help="Do not auto-enhance the reference clip before cloning.")
+    p.set_defaults(enhance=True)
     return p
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     engine = VoiceCloneEngine(device=args.device, exaggeration=args.exaggeration, cfg=args.cfg)
-    result = engine.clone(args.text, args.ref)
+    result = engine.clone(args.text, args.ref, enhance=args.enhance)
     if args.out:
         result.save_wav(args.out)
         print(f"Saved {args.out} ({result.duration:.1f}s)")

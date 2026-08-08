@@ -34,6 +34,7 @@ OpenVox is being built as a series of focused, independently-shipped engines und
 | 🎙️ **Streaming speech-to-text** (live partials + finals, word timestamps) | ✅ **Available** |
 | 🗣️ **Text-to-speech** — natural, human-sounding built-in voices | ✅ Available |
 | 🎭 **Voice cloning** — a custom voice from a short sample, fully local | ✅ Available |
+| 🧼 **Speech enhancement** — denoise + restore + bandwidth-extend a poor recording | ✅ Available |
 | ⚡ **Ultra-low-latency streaming TTS** with barge-in (real-time robot speech) | 🔭 Planned |
 | 🧩 **Headless daemon + ROS 2 node** for robot integration | 🔭 Planned |
 | 🖥️ **Hardware backends** — CUDA today; Jetson / ARM / Raspberry Pi next | 🔭 Planned |
@@ -54,6 +55,7 @@ OpenVox is one package, `openvox`, with each engine kept modular and independent
 - **`openvox.stt`** — the speech-to-text engine (available today).
 - **`openvox.tts`** — the text-to-speech engine (available today).
 - **`openvox.clone`** — the zero-shot voice-cloning engine (available today).
+- **`openvox.enhance`** — the offline speech-restoration engine (available today).
 
 Each engine sits behind a **swappable backend interface**, so the underlying model can be upgraded — or replaced with a purpose-built one — without changing the code that uses it. `import openvox` stays lightweight; you pull in an engine (and only its dependencies) via `openvox.stt` / `openvox.tts`.
 
@@ -181,6 +183,35 @@ engine.say("Nice to meet you.", reference_audio="myvoice.mp3")   # clone + speak
 ```
 
 **Demo flags:** `--text` (required) · `--ref PATH` (required, any audio format) · `--exaggeration` (default 0.5) · `--cfg` (default 0.5) · `--device` (`cuda`/`cpu`) · `--out PATH` · `--no-play`.
+
+---
+
+## 🧼 Speech Enhancement (available today)
+
+Restore a poorly-recorded clip — denoise, enhance, and extend bandwidth (e.g. 16 kHz → 44.1 kHz) — fully offline (via [resemble-enhance](https://github.com/resemble-ai/resemble-enhance), MIT). The voice cloner uses it **automatically** to clean the reference clip before cloning (pass `--no-enhance` to skip).
+
+Install is two steps (resemble-enhance ships incompatible pins, so it goes in `--no-deps`):
+
+```bash
+pip install -e ".[enhance]"
+pip install resemble-enhance --no-deps
+```
+
+The `[enhance]` extra installs CPU torch; for NVIDIA GPU add a CUDA torch build: `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121`.
+
+```bash
+python -m openvox.enhance.demo --in poor.wav --out clean.wav
+```
+
+```python
+from openvox.enhance import EnhanceEngine
+
+engine = EnhanceEngine(device="cuda")            # falls back to CPU
+result = engine.enhance_file("poor.wav")         # denoise + restore -> 44.1 kHz
+result.save_wav("clean.wav")
+```
+
+**Demo flags:** `--in PATH` (required) · `--out PATH` (required) · `--device` (`cuda`/`cpu`) · `--denoise-only` · `--nfe` (default 64).
 
 ---
 

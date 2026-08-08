@@ -6,6 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "openvox"
 version = "0.1.0"
 description = "All-in-one, fully offline voice engine (speech-to-text and text-to-speech)."
+authors = [
+  { name = "Zashiron", email = "zashiron.inc@gmail.com" }
+]
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.24", "platformdirs>=4.0"]
 
@@ -24,6 +27,7 @@ tts-gpu  = ["kokoro-onnx>=0.5.0", "sounddevice>=0.4.6",
             "nvidia-cudnn-cu12>=9.0", "nvidia-cuda-runtime-cu12>=12.0",
             "nvidia-cublas-cu12>=12.0", "nvidia-cufft-cu12>=11.0"]
 clone    = ["chatterbox-tts>=0.1", "sounddevice>=0.4.6"]
+enhance  = ["torch", "torchaudio", "matplotlib", "omegaconf", "pandas", "celluloid", "resampy", "soundfile", "rich", "tabulate"]
 dev      = ["pytest>=8.0"]
 all      = ["openvox[stt,stt-demo,tts]"]
 
@@ -31,6 +35,10 @@ all      = ["openvox[stt,stt-demo,tts]"]
 openvox-stt-demo = "openvox.stt.demo:main"
 openvox-tts-demo = "openvox.tts.demo:main"
 openvox-clone-demo = "openvox.clone.demo:main"
+openvox-enhance-demo = "openvox.enhance.demo:main"
+
+[project.urls]
+Homepage = "https://github.com/headlessripper/OpenVox"
 
 [tool.setuptools.packages.find]
 include = ["openvox*"]
