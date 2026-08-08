@@ -13,6 +13,16 @@ dependencies = ["numpy>=1.24", "platformdirs>=4.0"]
 stt      = ["faster-whisper>=1.0.0", "pysilero-vad>=2.0.0", "sounddevice>=0.4.6", "huggingface_hub>=0.23"]
 stt-demo = ["av>=11"]
 tts      = ["kokoro-onnx>=0.5.0", "sounddevice>=0.4.6"]
+# GPU TTS: onnxruntime-gpu + the CUDA 12 / cuDNN 9 runtime pip wheels, so no
+# system CUDA install is required. Install EITHER tts (CPU) OR tts-gpu, not both
+# (onnxruntime and onnxruntime-gpu conflict). The engine auto-selects CUDA when
+# available and falls back to CPU otherwise.
+# onnxruntime-gpu is pinned to the CUDA-12 build line: 1.28+ switched to CUDA 13
+# and would mismatch these cu12 runtime wheels.
+tts-gpu  = ["kokoro-onnx>=0.5.0", "sounddevice>=0.4.6",
+            "onnxruntime-gpu>=1.22,<1.28",
+            "nvidia-cudnn-cu12>=9.0", "nvidia-cuda-runtime-cu12>=12.0",
+            "nvidia-cublas-cu12>=12.0", "nvidia-cufft-cu12>=11.0"]
 dev      = ["pytest>=8.0"]
 all      = ["openvox[stt,stt-demo,tts]"]
 

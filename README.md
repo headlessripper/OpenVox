@@ -128,8 +128,12 @@ for word in result.words:
 Genuinely human-sounding speech, fully offline, with built-in voices.
 
 ```bash
-pip install -e ".[tts]"
+pip install -e ".[tts]"        # CPU
+# or, for NVIDIA GPU acceleration (bundles the CUDA 12 / cuDNN 9 runtime, no system CUDA needed):
+pip install -e ".[tts-gpu]"
 ```
+
+The engine auto-selects the GPU when a working CUDA provider is available and falls back to CPU otherwise — `device="cuda"` is safe everywhere. (Install *either* `tts` or `tts-gpu`, not both.)
 
 ```bash
 # Speak a line aloud (and optionally save it):
