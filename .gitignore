@@ -225,3 +225,7 @@ sample_reference_10s.wav
 enhanced_44k.wav
 cloned_hq_default.wav
 cloned_hq_cfg03.wav
+clone_enhanced.wav
+clone_raw.wav
+profile_clone.wav
+voice_profile.pt

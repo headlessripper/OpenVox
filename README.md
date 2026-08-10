@@ -2,9 +2,9 @@
 
 **The all-in-one, fully offline voice engine.**
 
-OpenVox is a complete voice stack — speech-to-text *and* text-to-speech — that runs **entirely on your own hardware, with no cloud, no API keys, and no per-minute fees.** It's built for the places cloud voice services can't go: robots, embedded and edge devices, air-gapped systems, and any product where audio must never leave the machine.
+OpenVox is a complete voice stack speech-to-text *and* text-to-speech that runs **entirely on your own hardware, with no cloud, no API keys, and no per-minute fees.** It's built for the places cloud voice services can't go: robots, embedded and edge devices, air-gapped systems, and any product where audio must never leave the machine.
 
-The goal is simple and ambitious: **match the quality of cloud services like ElevenLabs, but 100% offline** — and then beat them on the things a cloud API structurally can't do (zero latency jitter, zero marginal cost, total privacy, and deep on-device integration).
+The goal is simple and ambitious: **match the quality of cloud services like ElevenLabs, but 100% offline** and then beat them on the things a cloud API structurally can't do (zero latency jitter, zero marginal cost, total privacy, and deep on-device integration).
 
 Speech-to-text and text-to-speech are **available today**. Voice cloning is **available today**; ultra-low-latency streaming is **in active development** (see the roadmap below).
 
@@ -15,13 +15,13 @@ Speech-to-text and text-to-speech are **available today**. Voice cloning is **av
 | | Cloud voice APIs | **OpenVox** |
 |---|---|---|
 | **Connectivity** | Requires internet | **Fully offline / air-gapped** |
-| **Cost** | Per-minute / per-character fees | **Zero marginal cost** — run it all day for free |
+| **Cost** | Per-minute / per-character fees | **Zero marginal cost** run it all day for free |
 | **Privacy** | Audio leaves your device | **Audio never leaves the machine** |
 | **Latency** | Network round-trip + jitter | **On-device, deterministic** |
 | **Rate limits** | Throttled | **None** |
 | **Deployment** | Someone else's servers | **Your robot, your edge box, your terms** |
 
-This makes OpenVox a natural fit for **robotics, defense, medical, industrial, maritime, and privacy-sensitive** applications — anywhere a device needs to hear and speak without phoning home.
+This makes OpenVox a natural fit for **robotics, defense, medical, industrial, maritime, and privacy-sensitive** applications anywhere a device needs to hear and speak without phoning home.
 
 ---
 
@@ -32,19 +32,19 @@ OpenVox is being built as a series of focused, independently-shipped engines und
 | Capability | Status |
 |---|---|
 | 🎙️ **Streaming speech-to-text** (live partials + finals, word timestamps) | ✅ **Available** |
-| 🗣️ **Text-to-speech** — natural, human-sounding built-in voices | ✅ Available |
-| 🎭 **Voice cloning** — a custom voice from a short sample, fully local | ✅ Available |
-| 🧼 **Speech enhancement** — denoise + restore + bandwidth-extend a poor recording | ✅ Available |
+| 🗣️ **Text-to-speech** natural, human-sounding built-in voices | ✅ Available |
+| 🎭 **Voice cloning** a custom voice from a short sample, fully local | ✅ Available |
+| 🧼 **Speech enhancement** denoise + restore + bandwidth-extend a poor recording | ✅ Available |
 | ⚡ **Ultra-low-latency streaming TTS** with barge-in (real-time robot speech) | 🔭 Planned |
 | 🧩 **Headless daemon + ROS 2 node** for robot integration | 🔭 Planned |
-| 🖥️ **Hardware backends** — CUDA today; Jetson / ARM / Raspberry Pi next | 🔭 Planned |
+| 🖥️ **Hardware backends** CUDA today; Jetson / ARM / Raspberry Pi next | 🔭 Planned |
 
 **The vision in four horizons:**
 
-1. **Parity of plumbing** — an importable, offline library: streaming STT ✅, streaming TTS, a headless daemon, and a ROS 2 node.
-2. **Parity of quality** — a full model ladder, GPU/Jetson/ARM backends, punctuation, diarization, wake-word, and command-grammar biasing.
-3. **Surpass the cloud** — on-device voice cloning, a sub-100 ms full-duplex listen-and-speak loop, on-device adaptive fine-tuning (a robot that learns its operator's voice and its own noise profile), and mic-array direction-of-arrival.
-4. **Platform** — a community voice-model hub, an eval harness proving OpenVox's accuracy/latency beats the cloud on real-world audio, and a hardened cross-platform SDK.
+1. **Parity of plumbing** an importable, offline library: streaming STT ✅, streaming TTS, a headless daemon, and a ROS 2 node.
+2. **Parity of quality** a full model ladder, GPU/Jetson/ARM backends, punctuation, diarization, wake-word, and command-grammar biasing.
+3. **Surpass the cloud** on-device voice cloning, a sub-100 ms full-duplex listen-and-speak loop, on-device adaptive fine-tuning (a robot that learns its operator's voice and its own noise profile), and mic-array direction-of-arrival.
+4. **Platform** a community voice-model hub, an eval harness proving OpenVox's accuracy/latency beats the cloud on real-world audio, and a hardened cross-platform SDK.
 
 ---
 
@@ -52,23 +52,23 @@ OpenVox is being built as a series of focused, independently-shipped engines und
 
 OpenVox is one package, `openvox`, with each engine kept modular and independently installable so you only ship what a given device needs:
 
-- **`openvox.stt`** — the speech-to-text engine (available today).
-- **`openvox.tts`** — the text-to-speech engine (available today).
-- **`openvox.clone`** — the zero-shot voice-cloning engine (available today).
-- **`openvox.enhance`** — the offline speech-restoration engine (available today).
+- **`openvox.stt`** the speech-to-text engine (available today).
+- **`openvox.tts`** the text-to-speech engine (available today).
+- **`openvox.clone`** the zero-shot voice-cloning engine (available today).
+- **`openvox.enhance`** the offline speech-restoration engine (available today).
 
-Each engine sits behind a **swappable backend interface**, so the underlying model can be upgraded — or replaced with a purpose-built one — without changing the code that uses it. `import openvox` stays lightweight; you pull in an engine (and only its dependencies) via `openvox.stt` / `openvox.tts`.
+Each engine sits behind a **swappable backend interface**, so the underlying model can be upgraded or replaced with a purpose-built one without changing the code that uses it. `import openvox` stays lightweight; you pull in an engine (and only its dependencies) via `openvox.stt` / `openvox.tts`.
 
 ---
 
 ## 🎙️ Speech-to-Text (available today)
 
 - Real-time **streaming** transcription with live partial results that firm up into finals, plus word-level timestamps.
-- **Robust in noise** — neural voice-activity detection instead of a crude volume gate, so it holds up in real acoustic environments.
-- **Bounded latency** — partial passes use a sliding window, so even long, continuous speech stays real-time.
-- **Runs anywhere** — CUDA-accelerated with an automatic CPU fallback; the model auto-downloads once, then runs fully offline.
+- **Robust in noise** neural voice-activity detection instead of a crude volume gate, so it holds up in real acoustic environments.
+- **Bounded latency** partial passes use a sliding window, so even long, continuous speech stays real-time.
+- **Runs anywhere** CUDA-accelerated with an automatic CPU fallback; the model auto-downloads once, then runs fully offline.
 - **Multiple model sizes** (`tiny` → `large-v3`) to trade speed for accuracy.
-- **Any input** — the demo accepts any audio format or sample rate (`.ogg`, `.mp3`, `.m4a`, 48 kHz, stereo, …), decoding and resampling on the fly.
+- **Any input** the demo accepts any audio format or sample rate (`.ogg`, `.mp3`, `.m4a`, 48 kHz, stereo, …), decoding and resampling on the fly.
 
 ### Installation
 
@@ -89,7 +89,7 @@ The `stt-demo` extra adds on-the-fly audio decoding/resampling (via PyAV, which 
 ### Try it
 
 ```bash
-# Live microphone — clean transcript (finalized lines only):
+# Live microphone clean transcript (finalized lines only):
 python -m openvox.stt.demo
 
 # Transcribe any audio file:
@@ -99,7 +99,7 @@ python -m openvox.stt.demo --model base --device cpu --file recording.ogg
 python -m openvox.stt.demo --model base --file clip.mp3 --full
 ```
 
-By default the demo shows a **clean transcript** — only finalized lines (`✓`). Pass `--full` for the *Full Transcript View*, which also streams the live partials (`~`).
+By default the demo shows a **clean transcript** only finalized lines (`✓`). Pass `--full` for the *Full Transcript View*, which also streams the live partials (`~`).
 
 **Demo flags:** `--model` (`tiny`/`base`/`small`/`distil-large-v3`/`large-v3`, default `distil-large-v3`) · `--device` (`cuda` or `cpu`; auto-falls back to CPU) · `--language` (ISO 639-1, default `en`) · `--file` (any format/rate) · `--full` (show live partials).
 
@@ -136,7 +136,7 @@ pip install -e ".[tts]"        # CPU
 pip install -e ".[tts-gpu]"
 ```
 
-The engine auto-selects the GPU when a working CUDA provider is available and falls back to CPU otherwise — `device="cuda"` is safe everywhere. (Install *either* `tts` or `tts-gpu`, not both.)
+The engine auto-selects the GPU when a working CUDA provider is available and falls back to CPU otherwise `device="cuda"` is safe everywhere. (Install *either* `tts` or `tts-gpu`, not both.)
 
 ```bash
 # Speak a line aloud (and optionally save it):
@@ -161,7 +161,7 @@ engine.voices()   # list the built-in voices
 
 ## 🎭 Voice Cloning (available today)
 
-Zero-shot voice cloning — give a short reference clip and speak any text in that voice, fully offline (via [Chatterbox](https://github.com/resemble-ai/chatterbox), MIT). Every generated clip carries an imperceptible neural watermark for traceability.
+Zero-shot voice cloning give a short reference clip and speak any text in that voice, fully offline (via [Chatterbox](https://github.com/resemble-ai/chatterbox), MIT). Every generated clip carries an imperceptible neural watermark for traceability.
 
 ```bash
 pip install -e ".[clone]"                 # CPU (pulls PyTorch)
@@ -188,7 +188,7 @@ engine.say("Nice to meet you.", reference_audio="myvoice.mp3")   # clone + speak
 
 ## 🧼 Speech Enhancement (available today)
 
-Restore a poorly-recorded clip — denoise, enhance, and extend bandwidth (e.g. 16 kHz → 44.1 kHz) — fully offline (via [resemble-enhance](https://github.com/resemble-ai/resemble-enhance), MIT). The voice cloner uses it **automatically** to clean the reference clip before cloning (pass `--no-enhance` to skip).
+Restore a poorly-recorded clip denoise, enhance, and extend bandwidth (e.g. 16 kHz → 44.1 kHz) fully offline (via [resemble-enhance](https://github.com/resemble-ai/resemble-enhance), MIT). The voice cloner uses it **automatically** to clean the reference clip before cloning (pass `--no-enhance` to skip).
 
 Install is two steps (resemble-enhance ships incompatible pins, so it goes in `--no-deps`):
 
@@ -226,13 +226,13 @@ OpenVox is built spec-first. Full designs and step-by-step implementation plans 
 
 ## 🤝 Contributing
 
-Contributions are welcome — bug reports, feature ideas, and pull requests. Please open an issue to discuss any major change before starting work.
+Contributions are welcome bug reports, feature ideas, and pull requests. Please open an issue to discuss any major change before starting work.
 
 ---
 
 ## 📜 License
 
-OpenVox is released under the **OpenVox Proprietary License (Zashiron License v1.2)** — see [`LICENSE`](LICENSE). Commercial use requires written authorization; see the license for details.
+OpenVox is released under the **OpenVox Proprietary License (Zashiron License v1.2)** see [`LICENSE`](LICENSE). Commercial use requires written authorization; see the license for details.
 
 ---
 
@@ -246,4 +246,4 @@ If OpenVox is useful to you:
 
 ---
 
-**OpenVox — hear and speak, entirely offline.**
+**OpenVox hear and speak, entirely offline.**
