@@ -76,3 +76,10 @@ def test_generate_forwards_baked_in_exaggeration():
     assert fake_model.recorded_kwargs.get("exaggeration") == pytest.approx(0.7, abs=1e-6)
     assert sr == 24000
     assert wav.shape == (1, 4)
+
+
+def test_cuda_available_false_when_device_cpu():
+    # An explicit device="cpu" must report cuda_available False regardless of hardware,
+    # so the engine takes the Stage-A-only path.
+    from openvox.enroll.chatterbox_backend import ChatterboxEnrollBackend
+    assert ChatterboxEnrollBackend(device="cpu").cuda_available is False

@@ -36,7 +36,7 @@ class ChatterboxEnrollBackend(EnrollBackend):
     @property
     def cuda_available(self) -> bool:
         import torch
-        return torch.cuda.is_available()
+        return self._device == "cuda" and torch.cuda.is_available()
 
     @property
     def model_sr(self) -> int:
