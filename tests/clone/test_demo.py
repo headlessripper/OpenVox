@@ -20,3 +20,7 @@ def test_parser_flags():
 def test_exports():
     from openvox.clone import VoiceCloneEngine, TTSResult
     assert VoiceCloneEngine is not None and TTSResult is not None
+
+def test_clone_parser_accepts_profile():
+    args = demo.build_parser().parse_args(["--text", "hi", "--profile", "alice.ovx"])
+    assert args.profile == "alice.ovx"
