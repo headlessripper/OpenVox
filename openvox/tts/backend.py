@@ -1,5 +1,6 @@
 import wave
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from dataclasses import dataclass
 
 import numpy as np
@@ -31,3 +32,12 @@ class TTSBackend(ABC):
     def synthesize(self, text: str, voice: str, speed: float) -> TTSResult:
         """Synthesize speech for text with the given voice and speed."""
         raise NotImplementedError
+
+    def stream_segments(self, segments: list[str], voice: str,
+                        speed: float) -> Iterator[TTSResult]:
+        """Yield one synthesized chunk per segment, in order.
+
+        Default implementation loops synthesize(); backends may override for
+        finer-grained streaming."""
+        for seg in segments:
+            yield self.synthesize(seg, voice, speed)
