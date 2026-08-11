@@ -71,3 +71,11 @@ class ChatterboxBackend(CloneBackend):
             exaggeration=exaggeration, cfg_weight=cfg)
         audio = wav.squeeze(0).detach().cpu().numpy().astype(np.float32)
         return TTSResult(audio=audio, sample_rate=int(self._model.sr))
+
+    def clone_from_profile(self, text: str, conditionals, exaggeration: float,
+                           cfg: float) -> TTSResult:
+        self._ensure_loaded()
+        self._model.conds = conditionals.to(self._model.device)
+        wav = self._model.generate(text, exaggeration=exaggeration, cfg_weight=cfg)
+        audio = wav.squeeze(0).detach().cpu().numpy().astype(np.float32)
+        return TTSResult(audio=audio, sample_rate=int(self._model.sr))

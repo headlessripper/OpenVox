@@ -23,19 +23,29 @@ class VoiceCloneEngine:
         self._backend = ChatterboxBackend(device=c.device)
         self._enhancer = None
 
-    def clone(self, text: str, reference_audio: str,
+    def clone(self, text: str, reference_audio: str | None = None,
               exaggeration: float | None = None, cfg: float | None = None,
-              enhance: bool | None = None) -> TTSResult:
+              enhance: bool | None = None, profile=None) -> TTSResult:
         if not text or not text.strip():
             raise ValueError("text must be a non-empty string")
+        if profile is not None and reference_audio is not None:
+            raise ValueError("pass either reference_audio or profile, not both")
+        e = exaggeration if exaggeration is not None else self._config.exaggeration
+        g = cfg if cfg is not None else self._config.cfg
+
+        if profile is not None:
+            from openvox.enroll import VoiceProfile
+            prof = profile if isinstance(profile, VoiceProfile) else VoiceProfile.load(os.fspath(profile))
+            return self._backend.clone_from_profile(text, prof.conditionals, e, g)
+
+        if reference_audio is None:
+            raise ValueError("provide reference_audio or profile")
         if not os.path.isfile(reference_audio):
             raise FileNotFoundError(f"reference audio not found: {reference_audio}")
         if os.path.getsize(reference_audio) == 0:
             raise ValueError(f"reference audio is empty: {reference_audio}")
         do_enhance = enhance if enhance is not None else self._config.enhance
         ref_path = self._enhanced_reference(reference_audio) if do_enhance else reference_audio
-        e = exaggeration if exaggeration is not None else self._config.exaggeration
-        g = cfg if cfg is not None else self._config.cfg
         return self._backend.clone(text, ref_path, e, g)
 
     def _enhanced_reference(self, reference_audio: str) -> str:
