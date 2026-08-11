@@ -84,7 +84,8 @@ class ChatterboxEnrollBackend(EnrollBackend):
         m = self._model
         torch.manual_seed(int(seed))
         m.conds = conditionals
-        wav = m.generate(text)
+        exaggeration = float(conditionals.t3.emotion_adv.reshape(-1)[0])
+        wav = m.generate(text, exaggeration=exaggeration)
         return wav.squeeze(0).detach().cpu().numpy().astype(np.float32), int(m.sr)
 
     def ve_embed(self, wav, sr):
