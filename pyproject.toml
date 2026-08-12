@@ -29,6 +29,7 @@ tts-gpu  = ["kokoro-onnx>=0.5.0", "sounddevice>=0.4.6",
 clone    = ["chatterbox-tts>=0.1", "sounddevice>=0.4.6"]
 enhance  = ["torch", "torchaudio", "matplotlib", "omegaconf", "pandas", "celluloid", "resampy", "soundfile", "rich", "tabulate"]
 enroll   = ["openvox[clone,enhance]"]
+agent    = ["openvox[stt,tts]"]
 dev      = ["pytest>=8.0"]
 all      = ["openvox[stt,stt-demo,tts]"]
 
@@ -38,6 +39,7 @@ openvox-tts-demo = "openvox.tts.demo:main"
 openvox-clone-demo = "openvox.clone.demo:main"
 openvox-enhance-demo = "openvox.enhance.demo:main"
 openvox-enroll-demo = "openvox.enroll.demo:main"
+openvox-agent-demo = "openvox.agent.demo:main"
 
 [project.urls]
 Homepage = "https://github.com/headlessripper/OpenVox"
