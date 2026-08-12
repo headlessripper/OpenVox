@@ -59,7 +59,46 @@ class VoiceAgent:
         return spoken, interrupt
 
     def _watch_barge_in(self, handle):
-        raise NotImplementedError("barge-in monitor is added in Task 6")
+        import threading
+        interrupted = threading.Event()
+        stop_watch = threading.Event()
+        result = {}
+
+        def watch():
+            try:
+                for event in self._stt.stream(None):
+                    if stop_watch.is_set():
+                        break
+                    txt = (event.text or "").strip()
+                    if not txt:
+                        continue
+                    if event.is_partial:
+                        if not interrupted.is_set():
+                            interrupted.set()
+                            handle.stop()     # 2C barge-in: cut within one audio block
+                    else:
+                        result["text"] = txt   # the interrupting utterance
+                        break
+            except Exception as exc:            # never let the watcher crash the turn
+                log.debug("barge-in watcher stopped: %s", exc)
+
+        th = threading.Thread(target=watch, daemon=True)
+        th.start()
+        handle.wait()                           # returns when playback ends OR was stopped
+        if interrupted.is_set():
+            th.join(timeout=3.0)                 # let it capture the interrupting final
+            return result.get("text", "")
+        stop_watch.set()
+        self._close_source_best_effort()
+        th.join(timeout=1.0)
+        return None
+
+    def _close_source_best_effort(self):
+        # Best effort: unblock a mic read the watcher may be parked on. The STT
+        # mic source is opened inside stt.stream(); if the backend exposes a way
+        # to interrupt it in future, call it here. For now the watcher thread is
+        # a daemon and ends with the process if it cannot be unblocked sooner.
+        pass
 
     def run(self):
         cfg = self._cfg
