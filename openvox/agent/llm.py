@@ -1,4 +1,5 @@
 import json
+import urllib.error
 import urllib.request
 
 def _messages(history, user_text):
@@ -14,6 +15,8 @@ def _post(url, payload, headers, who):
     req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json", **headers})
     try:
         return urllib.request.urlopen(req, timeout=120)
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError(f"{who} at {url} returned HTTP {exc.code}: {exc.reason}") from exc
     except OSError as exc:
         raise RuntimeError(f"could not reach {who} at {url}: {exc}. Is the local server running?") from exc
 

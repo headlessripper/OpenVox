@@ -23,6 +23,27 @@ class _FakeTTS:
     def say_stream(self, text, voice=None):
         self.said.append(text if isinstance(text,str) else "".join(text)); return _FakeHandle()
 
+class _RaisingHandle:
+    """A handle whose wait() consumes the (streaming) text and re-raises,
+    simulating a streaming LLM whose exception surfaces during playback."""
+    def __init__(self, text_iter): self._it = text_iter; self.stopped = False
+    def stop(self): self.stopped = True
+    def wait(self, timeout=None):
+        for _ in self._it:
+            pass
+    @property
+    def done(self): return True
+
+class _DeferredRaiseTTS:
+    """say_stream() succeeds immediately; the exception only surfaces when
+    the returned handle's wait() iterates the (streaming) text."""
+    def __init__(self): self.said=[]
+    def say_stream(self, text, voice=None):
+        if isinstance(text, str):
+            self.said.append(text)
+            return _FakeHandle()
+        return _RaisingHandle(text)
+
 def _agent(utterances, llm, **kw):
     return VoiceAgent(llm=llm, stt=_ScriptSTT(utterances), tts=_FakeTTS(),
                       config=AgentConfig(barge_in=False, **kw))
@@ -54,3 +75,16 @@ def test_on_error_continue_survives_a_raising_turn():
     ag = _agent(["boom", "hi", "bye"], llm, stop_phrase="bye", on_error="continue")
     ag.run()   # must not raise
     assert ag._tts.said == ["ok"]      # the boom turn was skipped, hi spoke
+
+def test_on_error_continue_survives_a_streaming_llm_raising_during_speak():
+    def boom_chunks():
+        yield "par"
+        raise RuntimeError("stream broke")
+
+    def llm(text, history):
+        if text == "boom": return boom_chunks()
+        return "ok"
+    ag = VoiceAgent(llm=llm, stt=_ScriptSTT(["boom", "hi", "bye"]), tts=_DeferredRaiseTTS(),
+                     config=AgentConfig(barge_in=False, stop_phrase="bye", on_error="continue"))
+    ag.run()   # must not raise even though the exception surfaces in wait()
+    assert ag._tts.said == ["ok"]      # the boom turn was skipped, hi spoke normally

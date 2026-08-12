@@ -60,52 +60,53 @@ class VoiceAgent:
 
     def _watch_barge_in(self, handle):
         import threading
+        import time
+        from openvox.stt.audio.sources import MicSource
         interrupted = threading.Event()
-        stop_watch = threading.Event()
         result = {}
+        source = MicSource()   # explicit, so we can close it to unblock the watcher
 
         def watch():
+            first_partial = None
             try:
-                for event in self._stt.stream(None):
-                    if stop_watch.is_set():
-                        break
+                for event in self._stt.stream(source):
                     txt = (event.text or "").strip()
                     if not txt:
                         continue
                     if event.is_partial:
-                        if not interrupted.is_set():
+                        if first_partial is None:
+                            first_partial = time.monotonic()
+                        if (not interrupted.is_set()
+                                and time.monotonic() - first_partial >= self._cfg.barge_in_debounce_s):
                             interrupted.set()
-                            handle.stop()     # 2C barge-in: cut within one audio block
+                            handle.stop()   # 2C barge-in: cut within one audio block
                     else:
                         result["text"] = txt   # the interrupting utterance
                         break
-            except Exception as exc:            # never let the watcher crash the turn
+            except Exception as exc:           # never let the watcher crash the turn
                 log.debug("barge-in watcher stopped: %s", exc)
 
         th = threading.Thread(target=watch, daemon=True)
         th.start()
-        handle.wait()                           # returns when playback ends OR was stopped
+        handle.wait()                           # returns when playback ends or was stopped
         if interrupted.is_set():
             th.join(timeout=3.0)                 # let it capture the interrupting final
-            return result.get("text", "")
-        stop_watch.set()
-        self._close_source_best_effort()
+        self._close_source(source)               # ALWAYS release the mic + unblock the watcher
         th.join(timeout=1.0)
-        return None
+        return result.get("text") if interrupted.is_set() else None
 
-    def _close_source_best_effort(self):
-        # Best effort: unblock a mic read the watcher may be parked on. The STT
-        # mic source is opened inside stt.stream(); if the backend exposes a way
-        # to interrupt it in future, call it here. For now the watcher thread is
-        # a daemon and ends with the process if it cannot be unblocked sooner.
-        pass
+    def _close_source(self, source):
+        try:
+            source.close()
+        except Exception:
+            pass
 
     def run(self):
         cfg = self._cfg
-        if cfg.greeting:
-            speak_stream(self._tts, cfg.greeting, voice=self._voice).wait()
         pending = None
         try:
+            if cfg.greeting:
+                speak_stream(self._tts, cfg.greeting, voice=self._voice).wait()
             while True:
                 self._state("listening")
                 user_text = pending if pending is not None else listen_once(self._stt)
@@ -120,13 +121,13 @@ class VoiceAgent:
                 self._state("thinking")
                 try:
                     reply = self._llm(user_text, list(self._history))
+                    self._state("speaking")
+                    spoken, interrupt = self._speak_and_watch(reply)
                 except Exception as exc:
                     if cfg.on_error == "raise":
                         raise
-                    log.warning("LLM turn failed (%s); continuing.", exc)
+                    log.warning("Turn failed (%s); continuing.", exc)
                     continue
-                self._state("speaking")
-                spoken, interrupt = self._speak_and_watch(reply)
                 if self._on_agent_text and spoken:
                     self._on_agent_text(spoken)
                 self._history.append(Turn("assistant", spoken))
