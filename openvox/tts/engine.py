@@ -1,11 +1,11 @@
 import dataclasses
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 
 from openvox.tts.backend import TTSResult, AudioDeviceError
 from openvox.tts.config import TTSConfig
 from openvox.tts.kokoro_backend import KokoroBackend
 from openvox.tts.models import voices as _voices, validate_voice
-from openvox.tts.segment import split_text
+from openvox.tts.segment import split_text, iter_sentences
 from openvox.tts.voices import resolve_voice
 from openvox.tts.stream import SpeechHandle, _StreamPlayer
 
@@ -63,16 +63,20 @@ class TTSEngine:
         segments = split_text(text, self._config.segment_max_chars)
         return backend.stream_segments(segments, voice_id, s)
 
-    def say_stream(self, text: str, voice: str | None = None,
+    def say_stream(self, text: str | Iterable[str], voice: str | None = None,
                    speed: float | None = None) -> SpeechHandle:
-        if not text or not text.strip():
-            raise ValueError("text must be a non-empty string")
         v = voice if voice is not None else self._config.voice
         s = speed if speed is not None else self._config.speed
         if s <= 0:
             raise ValueError("speed must be > 0")
         backend, voice_id = resolve_voice(v, self._backend, self._config.device)
-        segments = split_text(text, self._config.segment_max_chars)
+        if isinstance(text, str):
+            if not text.strip():
+                raise ValueError("text must be a non-empty string")
+            segments = split_text(text, self._config.segment_max_chars)
+        else:
+            # a stream of text chunks (e.g. a streaming LLM): aggregate lazily
+            segments = iter_sentences(text, self._config.segment_max_chars)
         player = _StreamPlayer(self._config.sample_rate, self._config.stream_queue_size)
         handle = SpeechHandle(player)
         handle.start(backend, voice_id, s, segments)
