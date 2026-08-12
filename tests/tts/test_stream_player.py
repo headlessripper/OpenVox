@@ -1,6 +1,7 @@
 import sys
 import types
 import numpy as np
+import pytest
 from openvox.tts.stream import _StreamPlayer
 
 
@@ -28,11 +29,16 @@ class _FakeStream:
         self.closed = True
 
 
-def _install_fake_sd(monkeypatch, holder):
+class _RaisingStream(_FakeStream):
+    def write(self, a):
+        raise RuntimeError("device fault")
+
+
+def _install_fake_sd(monkeypatch, holder, stream_cls=_FakeStream):
     fake = types.ModuleType("sounddevice")
 
     def OutputStream(**kw):
-        s = _FakeStream(**kw)
+        s = stream_cls(**kw)
         holder.append(s)
         return s
 
@@ -64,4 +70,17 @@ def test_player_abort_closes_stream_and_stops_consumer(monkeypatch):
     s = holder[0]
     assert s.aborted is True
     assert s.closed is True
+    assert p._consumer.is_alive() is False
+
+
+def test_player_write_failure_surfaces_from_wait_drain(monkeypatch):
+    holder = []
+    _install_fake_sd(monkeypatch, holder, stream_cls=_RaisingStream)
+    p = _StreamPlayer(sample_rate=24000, queue_size=8)
+    p.start()
+    p.put(np.zeros(4, dtype="float32"), 24000)
+    p.put(np.ones(4, dtype="float32"), 24000)
+    p.finish()
+    with pytest.raises(RuntimeError, match="device fault"):
+        p.wait_drain(timeout=5)
     assert p._consumer.is_alive() is False

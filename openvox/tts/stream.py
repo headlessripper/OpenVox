@@ -63,6 +63,7 @@ class _StreamPlayer:
         self._finished = threading.Event()
         self._stream = None
         self._consumer = None
+        self._error = None
 
     def start(self) -> None:
         import sounddevice as sd
@@ -84,7 +85,9 @@ class _StreamPlayer:
                 break
             try:
                 self._stream.write(np.ascontiguousarray(audio, dtype="float32"))
-            except Exception:
+            except Exception as exc:
+                self._error = exc
+                self._abort.set()
                 break
 
     def put(self, audio, sample_rate) -> None:
@@ -119,12 +122,15 @@ class _StreamPlayer:
         if self._consumer is not None:
             self._consumer.join(timeout)
         self.close()
+        if self._error is not None:
+            raise self._error
 
     def close(self) -> None:
-        if self._stream is not None:
+        stream = self._stream
+        self._stream = None
+        if stream is not None:
             try:
-                self._stream.stop()
-                self._stream.close()
+                stream.stop()
+                stream.close()
             except Exception:
                 pass
-            self._stream = None
