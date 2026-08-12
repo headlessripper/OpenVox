@@ -82,7 +82,10 @@ class _StreamPlayer:
                 continue
             if self._abort.is_set():
                 break
-            self._stream.write(np.ascontiguousarray(audio, dtype="float32"))
+            try:
+                self._stream.write(np.ascontiguousarray(audio, dtype="float32"))
+            except Exception:
+                break
 
     def put(self, audio, sample_rate) -> None:
         # backpressure, but stay responsive to abort so a blocked producer frees
@@ -108,6 +111,9 @@ class _StreamPlayer:
                 self._stream.abort()
             except Exception:
                 pass
+        if self._consumer is not None:
+            self._consumer.join(timeout=1.0)
+        self.close()
 
     def wait_drain(self, timeout: float | None = None) -> None:
         if self._consumer is not None:
