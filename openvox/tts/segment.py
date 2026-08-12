@@ -1,7 +1,9 @@
 import re
+from collections.abc import Iterable, Iterator
 
 _SENTENCE = re.compile(r'.+?(?:[.!?]+(?=\s|$)|$)', re.DOTALL)
 _CLAUSE = re.compile(r'.+?(?:[,;:](?=\s|$)|$)', re.DOTALL)
+_TERM = re.compile(r'[.!?](?=\s)')
 
 
 def _norm(s: str) -> str:
@@ -40,3 +42,36 @@ def split_text(text: str, max_chars: int = 160) -> list[str]:
             else:
                 segments.extend(_pack_words(clause, max_chars))
     return segments
+
+
+def iter_sentences(chunks: Iterable[str], max_chars: int = 160) -> Iterator[str]:
+    """Aggregate a stream of text chunks into complete sentences, lazily.
+
+    Yields a sentence as soon as a terminator (. ? !) followed by whitespace is
+    seen; splits an over-length terminator-free run at the last space before
+    max_chars; yields the trailing remainder when the input ends."""
+    buf = ""
+    for chunk in chunks:
+        buf += chunk
+        while True:
+            m = _TERM.search(buf)
+            if m:
+                i = m.end()
+                sent = buf[:i].strip()
+                buf = buf[i:].lstrip()
+                if sent:
+                    yield sent
+                continue
+            if len(buf) >= max_chars:
+                cut = buf.rfind(' ', 0, max_chars)
+                if cut <= 0:
+                    cut = max_chars
+                sent = buf[:cut].strip()
+                buf = buf[cut:].lstrip()
+                if sent:
+                    yield sent
+                continue
+            break
+    tail = buf.strip()
+    if tail:
+        yield tail
